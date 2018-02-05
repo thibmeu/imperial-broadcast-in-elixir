@@ -19,24 +19,31 @@ defp main_aux name do
 
   # Code
   IO.puts ["System at ", DAC.self_string()]
-  
+ 
   # Creating peers
-  for iPeer <- tPeers, do:
-    DAC.node_spawn(name, iPeer, Peer, :start, [self()])
+  peers = for iPeer <- tPeers, do:
+            DAC.node_spawn(name, iPeer, Peer, :start, [ self() ])
+
+  for peer <- peers, do:
+    send peer, { :bind, peers}
 
   # Receive pl for every peer
   pls = retrieve npeers
 
-  for pl <- pls, do:
-    send pl, { :bind, pls }
+  if pls === nil do
+    raise "System wasn't able to bind all peers"
+  end
+
+  for peer <- peers, do:
+    send peer, { :bindPL, pls}
 
   # Start the system by asking each peer to broadcast
-  for pl <- pls, do:
+  for pl <- Map.values(pls), do:
     send pl, { :deliver, nil, { :broadcast, max_messages, timeout } }
 end
 
 defp retrieve npeers do
-  retrieve 0, [], npeers
+  retrieve 0, %{}, npeers
 end
 
 def retrieve iPeer, pls, npeers do
@@ -44,11 +51,10 @@ def retrieve iPeer, pls, npeers do
     pls
   else
     receive do
-    { :bind, pl } ->
-      retrieve iPeer + 1, pls ++ [ pl ], npeers
+    { :bind, peer, pl } ->
+      retrieve iPeer + 1, Map.put(pls, peer, pl), npeers
     after
-    5000 ->
-      IO.puts "System wasn't able to bind all peers"
+    5_000 ->
       nil
     end
   end
