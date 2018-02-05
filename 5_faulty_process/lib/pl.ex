@@ -19,7 +19,7 @@ end
 defp next peers, pls, component, reliability do
   receive do
   { :send, to, message } ->
-    if not random_failure reliability do
+    if random_failure reliability do
       send pls[to], { :deliver, peers[self()], message }
     end
   { :deliver, from,  message } ->

@@ -2,7 +2,7 @@
 
 defmodule LPL do
 
-def start processes do
+def start processes, pid do
   # Internal variables
   reliability = 50
 
