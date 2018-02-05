@@ -46,7 +46,7 @@ defp retrieve npeers do
   retrieve 0, %{}, npeers
 end
 
-def retrieve iPeer, pls, npeers do
+defp retrieve iPeer, pls, npeers do
   if iPeer == npeers do
     pls
   else
