@@ -15,7 +15,6 @@ end
 defp next peers, pls, component do
   receive do
   { :send, to, message } ->
-    if pls[to] === nil do IO.puts "-------------- #{inspect to} - #{inspect peers[self()]}" end
     send pls[to], { :deliver, peers[self()], message }
   { :deliver, from,  message } ->
     send component, { :deliver, from, message }
