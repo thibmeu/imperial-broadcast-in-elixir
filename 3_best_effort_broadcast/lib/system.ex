@@ -13,7 +13,7 @@ end
 defp main_aux name do
   npeers = hd(DAC.int_args())
   # Variables
-  max_messages = 1000
+  max_messages = 10_000_000
   timeout = 3000
   tPeers = 0..(npeers-1)
 

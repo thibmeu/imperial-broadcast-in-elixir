@@ -16,7 +16,7 @@ defp next pl, nodes do
 
   receive do
   { :deliver, _, { :broadcast, max_messages, timeout } } ->
-    listen(messages, nodes, 0, max_messages, timeout, pl)
+    listen messages, nodes, 0, max_messages, timeout, pl, (DAC.time + timeout)
   end
 end
 
@@ -28,17 +28,21 @@ defp broadcast messages, nodes, pl do
   end 
 end
 
-defp listen messages, nodes, timeout, max_messages, max_timeout, pl do
+defp listen messages, nodes, timeout, max_messages, max_timeout, pl, max_time do
   receive do
     { :deliver, from, { :message } } ->
       { sent, received } = messages[from]
-      listen Map.put(messages, from, { sent, received+1 }), nodes, timeout, max_messages, max_timeout, pl
+      listen Map.put(messages, from, { sent, received+1 }), nodes, timeout, max_messages, max_timeout, pl, max_time
   after
     timeout ->
-      if sent(messages, pl) < max_messages do
-        messages = broadcast messages, nodes, pl
-        timeout = if sent(messages, pl) == max_messages, do: max_timeout, else: timeout
-        listen messages, nodes, timeout, max_messages, max_timeout, pl
+      if timeout == 0 do
+        messages = if DAC.time < max_time do
+                     broadcast messages, nodes, pl
+                   else
+                     messages
+                   end
+        timeout = if sent(messages, pl) == max_messages or DAC.time >= max_time, do: max_timeout, else: timeout
+        listen messages, nodes, timeout, max_messages, max_timeout, pl, max_time
       else
         IO.puts "#{DAC.self_string()}: #{for p <- messages, do: ({_, t} = p; inspect t)}"
       end

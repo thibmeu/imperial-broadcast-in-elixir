@@ -1,13 +1,13 @@
 # Thibault Meunier (ttm17)
 
-defmodule Flooding do
+defmodule SystemD do
 
 def main do
   npeers = hd(DAC.int_args())
   # Variables
   max_messages = 1000
   timeout = 3000
-  tPeers = 0..npeers
+  tPeers = 0..(npeers-1)
 
   # Code
   IO.puts ["Flooding at ", DAC.self_string()]
@@ -28,7 +28,7 @@ def main_net do
   # Variables
   max_messages = 1000
   timeout = 3000
-  tPeers = 0..npeers
+  tPeers = 0..(npeers-1)
 
   # Code
   IO.puts ["Flooding at ", DAC.self_string()]

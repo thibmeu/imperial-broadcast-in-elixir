@@ -53,6 +53,8 @@ end
 def random(n), do: :rand.uniform(n)
 
 def sqrt(x), do: :math.sqrt(x)
+
+def time, do: :os.system_time(:millisecond)
   
 end # module -----------------------
 

@@ -16,7 +16,7 @@ defp next processes, component do
 
   receive do
   { :deliver, _, { :broadcast, max_messages, timeout } } ->
-    listen messages, 0, max_messages, timeout, component
+    listen messages, 0, max_messages, timeout, component, (DAC.time + timeout)
   end
 end
 
@@ -30,17 +30,21 @@ defp broadcast messages, component do
   end 
 end
 
-defp listen messages, timeout, max_messages, max_timeout, component do
+defp listen messages, timeout, max_messages, max_timeout, component, max_time do
   receive do
     { :deliver, from, { :message } } ->
       { sent, received } = messages[from]
-      listen Map.put(messages, from, { sent, received+1 }), timeout, max_messages, max_timeout, component
+      listen Map.put(messages, from, { sent, received+1 }), timeout, max_messages, max_timeout, component, max_time
   after
     timeout ->
-      if sent(messages) < max_messages do
-        messages = broadcast messages, component
-        timeout = if sent(messages) == max_messages, do: max_timeout, else: timeout
-        listen messages, timeout, max_messages, max_timeout, component
+      if timeout == 0 do
+        messages = if DAC.time < max_time do
+                     broadcast messages, component
+                   else
+                     messages
+                   end
+        timeout = if sent(messages) == max_messages or DAC.time >= max_time, do: max_timeout, else: timeout
+        listen messages, timeout, max_messages, max_timeout, component, max_time
       else
         IO.puts "#{DAC.self_string()}: #{for p <- messages, do: ({_, t} = p; inspect t)}"
       end

@@ -2,7 +2,7 @@
 # distributed algorithms, n.dulay, 18 jan 18
 # Makefile, v1
 
-PEERS    = 10
+PEERS    = 5
 MAIN     = SystemD.main
 MAIN_NET = SystemD.main_net
 

@@ -4,7 +4,7 @@ defmodule LPL do
 
 def start processes do
   # Internal variables
-  reliability = 50
+  reliability = 20
 
   # Wait from binding with components and other PLs
   receive do
