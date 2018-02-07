@@ -2,7 +2,9 @@
 
 ## Coursework 1
 
-#### Thibault Meunier (ttm17)
+### Thibault Meunier (ttm17)
+
+
 
 ### Introduction
 
@@ -23,7 +25,9 @@ All code mentioned in the current paper were run with the following configuratio
 
 The system under test is composed of `N = 5` fully connected peers. Each peer broadcast `max_messages` or until a `timeout` is reach.
 
-I've set a priority on listening. Then if a peer has messages in its mailbox, it will first process them and pursue its broadcasting later on.
+I have set a priority on listening. Then if a peer has messages in its mailbox, it will first process them and pursue its broadcasting later on.
+
+> *Note* While writing this report, I have discovered Elixir `self_string()` function does not uniquely identify processes over a network while the sending system still seems to work properly. It is an output issue which can be fixed by assigning a number to each peer. Then one can print this number instead of peer's pid.
 
 #### Tests
 
@@ -423,7 +427,33 @@ System ---|3| LPL3
 
   Before the fix, there was `50%` chance to receive a message. With this new technique, it goes up to `85%`. What is important to notice is the fact those results are much better with more peers. With a 10-peer system, messages are received nearly `100%` of the time.
 
-  **Calculous here**
+  > *Note*: Formal Probabilities
+  >
+  > A good way to check if our results are coherent is to determine the probability of a node to receive a given message.
+  >
+  > Let $p$ be the probablity for a node to send a message.
+  >
+  > Let $N_i$ be the random variable associated with to the number of peer visited by a message before getting delivered.
+  >
+  > $\forall i, N_i \in \left\{0, 1, \dots, n\right\}$ where $n$ is the number of nodes
+  >
+  > We look for $P_i$, the probability for a peer to receive a message
+  >
+  > Let $i \in \left\{0, 1, \dots, n\right\}$ 
+  >
+  > $\forall n \gt 0, P_i = \sum_{k=0}^{n-1}\mathbb{P}\left(N_i=k\right)$
+  >
+  > $\mathbb{P}\left(N_i=0\right) = p$
+  >
+  > $\mathbb{P}\left(N_i=1\right) = ?$
+  >
+  > $\forall k \gt 0, \mathbb{P}\left(N_i=k\right) = ?$
+  >
+  > Solving this problem get down to solve the difference equation, which I haven't been able to do.
+  >
+  > However, for $n$ a real number of peers, we can compute $P_i$ with a simple Python program.
+  >
+  > For $n=5$, we get $P_i=$
 
 
 - `{:broadcast, 10_000_000, 3000}`
